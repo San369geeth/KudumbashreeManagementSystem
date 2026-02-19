@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KudumbashreeManagementSystem.Data;
+using KudumbashreeManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using KudumbashreeManagementSystem.Data;
-using KudumbashreeManagementSystem.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KudumbashreeManagementSystem.Controllers
 {
@@ -19,13 +20,13 @@ namespace KudumbashreeManagementSystem.Controllers
             _context = context;
         }
 
-        // GET: Members
+
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Members.ToListAsync());
+            return View(await _context.Members.AsNoTracking().ToListAsync());
         }
 
-        // GET: Members/Details/5
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,15 +44,12 @@ namespace KudumbashreeManagementSystem.Controllers
             return View(member);
         }
 
-        // GET: Members/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Members/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MemberId,Name,Phone,Address,JoinDate")] Member member)
@@ -65,7 +63,6 @@ namespace KudumbashreeManagementSystem.Controllers
             return View(member);
         }
 
-        // GET: Members/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,9 +78,6 @@ namespace KudumbashreeManagementSystem.Controllers
             return View(member);
         }
 
-        // POST: Members/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MemberId,Name,Phone,Address,JoinDate")] Member member)
@@ -116,28 +110,10 @@ namespace KudumbashreeManagementSystem.Controllers
             return View(member);
         }
 
-        // GET: Members/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var member = await _context.Members
-                .FirstOrDefaultAsync(m => m.MemberId == id);
-            if (member == null)
-            {
-                return NotFound();
-            }
-
-            return View(member);
-        }
-
-        // POST: Members/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var member = await _context.Members.FindAsync(id);
             if (member != null)
