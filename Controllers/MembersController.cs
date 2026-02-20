@@ -1,5 +1,6 @@
 ﻿using KudumbashreeManagementSystem.Data;
 using KudumbashreeManagementSystem.Models;
+using KudumbashreeManagementSystem.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,17 @@ namespace KudumbashreeManagementSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Members.AsNoTracking().ToListAsync());
+            var members = await _context.Members
+                .Select(m => new MemberIndexViewModel
+                {
+                    MemberId = m.MemberId,
+                    Name = m.Name,
+                    Address = m.Address??"",
+                    Phone = m.Phone,
+                    JoinDate = m.JoinDate
+                })
+                .ToListAsync();
+            return View(members);
         }
 
 
@@ -40,7 +51,6 @@ namespace KudumbashreeManagementSystem.Controllers
             {
                 return NotFound();
             }
-
             return View(member);
         }
 
@@ -52,7 +62,7 @@ namespace KudumbashreeManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MemberId,Name,Phone,Address,JoinDate")] Member member)
+        public async Task<IActionResult> Create(Member member)
         {
             if (ModelState.IsValid)
             {
@@ -80,7 +90,7 @@ namespace KudumbashreeManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MemberId,Name,Phone,Address,JoinDate")] Member member)
+        public async Task<IActionResult> Edit(int id,Member member)
         {
             if (id != member.MemberId)
             {

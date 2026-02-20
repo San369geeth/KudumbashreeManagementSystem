@@ -4,9 +4,8 @@
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
+<h2 class="mb-3">Edit Member</h2>
 
-<h4>Member</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -30,18 +29,56 @@
             </div>
             <div class="form-group">
                 <label asp-for="JoinDate" class="control-label"></label>
-                <input asp-for="JoinDate" class="form-control" />
+                <input asp-for="JoinDate" class="form-control" type="date" />
                 <span asp-validation-for="JoinDate" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="DateOfBirth" class="control-label"></label>
+                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EducationStatus" class="control-label"></label>
+                <input asp-for="EducationStatus" class="form-control" />
+                <span asp-validation-for="EducationStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Occupation" class="control-label"></label>
+                <input asp-for="Occupation" class="form-control" />
+                <span asp-validation-for="Occupation" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FamilySize" class="control-label"></label>
+                <input asp-for="FamilySize" class="form-control" type="number" min="1" />
+                <span asp-validation-for="FamilySize" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EconomicStatus" class="control-label"></label>
+                <input asp-for="EconomicStatus" class="form-control" />
+                <span asp-validation-for="EconomicStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdentityType" class="control-label"></label>
+                <select asp-for="IdentityType" class="form-control">
+                    <option value="">-- Select Identity Type --</option>
+                    <option>Ration Card</option>
+                    <option>Voter ID</option>
+                    <option>Job Card</option>
+                    <option>Other</option>
+                </select>
+                <span asp-validation-for="IdentityType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdentityNumber" class="control-label"></label>
+                <input asp-for="IdentityNumber" class="form-control" />
+                <span asp-validation-for="IdentityNumber" class="text-danger"></span>
+            </div>
+            <div class="d-flex justify-content-between mt-3">
+                <a asp-action="Index" class="btn btn-secondary">Go Back</a>
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

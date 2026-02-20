@@ -1,17 +1,18 @@
-﻿@model IEnumerable<KudumbashreeManagementSystem.Models.Member>
+﻿@model IEnumerable<KudumbashreeManagementSystem.ViewModels.MemberIndexViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Members";
+    int SlNo = 1;
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Members</h1>
+    <a class="btn btn-success" asp-action="Create">+Add Member</a>
+</div>
 <table class="table">
     <thead>
         <tr>
+            <th>SlNo</th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -28,36 +29,50 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Phone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JoinDate)
-            </td>
-            <td>
-                <a asp-action="Edit" class="btn btn-warning me-1" asp-route-id="@item.MemberId">Edit</a> 
-                <a asp-action="Details" class="btn btn-info me-1" asp-route-id="@item.MemberId">Details</a> 
-                <button type="button"
-                        class="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#deleteModal"
-                        data-id="@item.MemberId"
-                        data-name="@item.Name"
-                        data-phone="@item.Phone"
-                        data-address="@item.Address"
-                        data-joindate="@item.JoinDate.ToString("dd-MM-yyyy")">
-                    Delete
-                </button>
-            </td>
-        </tr>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted">
+                    No members found. Click "Add Member" to create one.
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@SlNo</td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Phone)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Address)
+                    </td>
+                    <td>
+                        @item.JoinDate.ToString("dd MMM yyyy")
+                    </td>
+                    <td>
+                        <a asp-action="Edit" class="btn btn-warning me-1" asp-route-id="@item.MemberId">Edit</a>
+                        <a asp-action="Details" class="btn btn-info me-1" asp-route-id="@item.MemberId">Details</a>
+                        <button type="button"
+                                class="btn btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal"
+                                data-id="@item.MemberId"
+                                data-name="@item.Name"
+                                data-phone="@item.Phone"
+                                data-address="@item.Address"
+                                data-joindate="@item.JoinDate.ToString("dd-MM-yyyy")">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                SlNo++;
+            }
 }
     </tbody>
 </table>
