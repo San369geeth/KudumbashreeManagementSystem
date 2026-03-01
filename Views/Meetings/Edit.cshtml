@@ -1,0 +1,39 @@
+﻿@model KudumbashreeManagementSystem.Models.Meeting
+
+@{
+    ViewData["Title"] = "Edit Meeting";
+}
+
+<h3> Edit Meeting</h3>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MeetingId" />
+            <div class="form-group">
+                <label asp-for="MeetingDate" class="control-label"></label>
+                <input asp-for="MeetingDate" class="form-control" />
+                <span asp-validation-for="MeetingDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExpectedAmount" class="control-label"></label>
+                <input asp-for="ExpectedAmount" class="form-control" />
+                <span asp-validation-for="ExpectedAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notes" class="control-label"></label>
+                <input asp-for="Notes" class="form-control"/>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+            <div class="d-flex justify-content-between mt-3">
+                <a asp-action="Index" class="btn btn-secondary">Go Back</a>
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

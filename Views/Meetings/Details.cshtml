@@ -1,0 +1,217 @@
+﻿@model KudumbashreeManagementSystem.Models.Meeting
+
+@{
+    ViewData["Title"] = "Meting Details";
+}
+
+
+<div>
+    <h3>Meting Details</h3>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.MeetingDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.MeetingDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ExpectedAmount)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ExpectedAmount)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Notes)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Notes)
+        </dd>
+        <dt class = "col-sm-2">Status</dt>
+        <dd class = "col-sm-10">
+            @if (Model.IsFinalized)
+            {
+                <span class="badge bg-success">Finalized</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Ongoing</span>
+            }
+        </dd>
+    </dl>
+</div>
+<div class="mt-4">
+    <h4>Attendance & Contributions</h4>
+    @* Finalize button with confirmation *@
+    @if (!Model.IsFinalized)
+    {
+        <form asp-action="Finalize" method="post" class="mb-3 d-inline" onsubmit="return confirm('Finalize meeting? After finalization no edits will be allowed. Continue?');">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.MeetingId" />
+            <button type="submit" class="btn btn-danger">Finalize Meeting</button>
+        </form>
+    }
+
+    <form asp-action="UpdateMembers" method="post" id="members-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="meetingId" value="@Model.MeetingId" />
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Present</th>
+                    <th>Contribution</th>
+                </tr>
+            </thead>
+            <tbody>
+            @{
+                var members = Model.MeetingMembers?.ToList() ?? new List<KudumbashreeManagementSystem.Models.MeetingMember>();
+            }
+            @for (int i = 0; i < members.Count; i++)
+            {
+                var mm = members[i];
+                <tr>
+                    <td>
+                        @mm.Member?.Name
+                        <input type="hidden" name="meetingMembers.index" value="@i" />
+                        <input type="hidden" name="meetingMembers[@i].Id" value="@mm.Id" />
+                    </td>
+                    <td>
+                        <input type="checkbox" data-id="@mm.Id" name="meetingMembers[@i].IsPresent" value="true" @(mm.IsPresent ? "checked" : "") @(Model.IsFinalized ? "disabled" : "") />
+                        <input type="hidden" name="meetingMembers[@i].IsPresent" value="false" />
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" min="0" class="form-control contribution-input" data-id="@mm.Id" data-expected="@Model.ExpectedAmount" name="display_meetingMembers[@i].ContributionAmount" value="@mm.ContributionAmount" @(Model.IsFinalized ? "disabled" : "") />
+                        <input type="hidden" class="contribution-hidden" data-id="@mm.Id" name="meetingMembers[@i].ContributionAmount" value="@mm.ContributionAmount" />
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <div id="form-error" class="text-danger mb-2" role="alert" aria-live="assertive">
+            @if (TempData["Error"] != null)
+            {
+                @TempData["Error"]
+            }
+        </div>
+        <div class="text-end fw-bold">
+            Total Collected: INR <span id="total-collected">@Model.MeetingMembers?.Sum(mm => mm.ContributionAmount).ToString("F2")</span>
+        </div>
+        <div class="d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            @if (!Model.IsFinalized)
+            {
+                <button type="submit" class="btn btn-primary">Save Attendance</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-secondary" disabled>Finalized - No edits</button>
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function(){
+            function parseDecimal(v){
+                var n = parseFloat(v);
+                return isNaN(n) ? 0 : n;
+            }
+
+            function updateHidden(id, val){
+                var hidden = document.querySelector('.contribution-hidden[data-id="'+id+'"]');
+                if(hidden) hidden.value = val;
+            }
+
+            function recalcTotal(){
+                var total = 0;
+                document.querySelectorAll('.contribution-hidden').forEach(function(h){
+                    total += parseDecimal(h.value);
+                });
+                var el = document.getElementById('total-collected');
+                if(el) el.textContent = total.toFixed(2);
+            }
+
+            // mirror visible inputs to hidden inputs and recalc
+            document.querySelectorAll('.contribution-input').forEach(function(inp){
+                inp.addEventListener('input', function(e){
+                    var id = e.target.dataset.id;
+                    var val = e.target.value || '0';
+                    updateHidden(id, val);
+                    recalcTotal();
+                });
+            });
+
+            // client-side validation: prevent submit when a present member has 0 contribution
+            var form = document.getElementById('members-form');
+            if (form) {
+                form.addEventListener('submit', function (ev) {
+                    var invalid = false;
+                    document.querySelectorAll('input[type=checkbox][name*=".IsPresent"]').forEach(function(chk){
+                        var id = chk.dataset.id;
+                        var hidden = document.querySelector('.contribution-hidden[data-id="'+id+'"]');
+                        if (!hidden) return;
+                        var val = parseDecimal(hidden.value || '0');
+                        if (chk.checked && val <= 0) {
+                            invalid = true;
+                        }
+                    });
+
+                    var errorEl = document.getElementById('form-error');
+                    if (invalid) {
+                        ev.preventDefault();
+                        if (errorEl) errorEl.textContent = 'Present members must have a contribution greater than 0.';
+                        // scroll to error
+                        if (errorEl) errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        if (errorEl) errorEl.textContent = '';
+                    }
+                });
+            }
+
+            // handle checkbox toggles
+            document.querySelectorAll('input[type=checkbox][name*=".IsPresent"]').forEach(function(chk){
+                chk.addEventListener('change', function(e){
+                    var id = e.target.dataset.id;
+                    var contribInput = document.querySelector('.contribution-input[data-id="'+id+'"]');
+                    if(!contribInput) return;
+                    if(!e.target.checked){
+                        // set visible and hidden to 0
+                        contribInput.dataset.prev = contribInput.value || '';
+                        contribInput.value = '0';
+                        contribInput.setAttribute('disabled','disabled');
+                        updateHidden(id, '0');
+                    } else {
+                        var prev = contribInput.dataset.prev || '';
+                        contribInput.value = prev && prev !== '0' ? prev : contribInput.dataset.expected;
+                        contribInput.removeAttribute('disabled');
+                        updateHidden(id, contribInput.value);
+                    }
+                    recalcTotal();
+                });
+            });
+
+            // initial mirror and total
+            document.querySelectorAll('.contribution-input').forEach(function(inp){
+                updateHidden(inp.dataset.id, inp.value || '0');
+            });
+            // initialize disabled state for contributions based on presence
+            document.querySelectorAll('input[type=checkbox][name*=".IsPresent"]').forEach(function(chk){
+                var id = chk.dataset.id;
+                var contribInput = document.querySelector('.contribution-input[data-id="'+id+'"]');
+                if(!contribInput) return;
+                if(!chk.checked){
+                    contribInput.dataset.prev = contribInput.value || '';
+                    contribInput.value = '0';
+                    contribInput.setAttribute('disabled','disabled');
+                    updateHidden(id, '0');
+                } else {
+                    contribInput.removeAttribute('disabled');
+                    updateHidden(id, contribInput.value || '0');
+                }
+            });
+            recalcTotal();
+        })();
+    </script>
+}

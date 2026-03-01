@@ -1,0 +1,59 @@
+﻿@model IEnumerable<KudumbashreeManagementSystem.Models.Meeting>
+
+@{
+    ViewData["Title"] = "Meetings";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Meetings</h1>
+    <a asp-action="Create" class="btn btn-success">Create +</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MeetingDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExpectedAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Notes)
+            </th>
+            <th>
+                Total Collected
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeetingDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpectedAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Notes)
+            </td>
+            <td>
+                @item.TotalContribution.ToString("F2")
+            </td>
+            <td>
+                @if (!item.IsFinalized)
+                {
+                        <a asp-action="Edit" asp-route-id="@item.MeetingId" class="btn btn-warning me-1">Edit</a>
+                }
+                else
+                {
+                    <span class="badge bg-success me-1">Finalized</span>
+                }
+                    <a asp-action="Details" asp-route-id="@item.MeetingId" class="btn btn-info me-1">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.MeetingId" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

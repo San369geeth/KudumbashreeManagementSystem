@@ -4,6 +4,7 @@ using KudumbashreeManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KudumbashreeManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260227065127_AddMeetingAndContribution")]
+    partial class AddMeetingAndContribution
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,32 @@ namespace KudumbashreeManagementSystem.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("KudumbashreeManagementSystem.Models.Contribution", b =>
+                {
+                    b.Property<int>("ContributionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContributionId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MeetingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ContributionId");
+
+                    b.HasIndex("MeetingId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("Contributions");
+                });
 
             modelBuilder.Entity("KudumbashreeManagementSystem.Models.Meeting", b =>
                 {
@@ -31,11 +60,7 @@ namespace KudumbashreeManagementSystem.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MeetingId"));
 
                     b.Property<decimal>("ExpectedAmount")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<bool>("IsFinalized")
-                        .HasColumnType("bit");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("MeetingDate")
                         .HasColumnType("datetime2");
@@ -46,36 +71,6 @@ namespace KudumbashreeManagementSystem.Migrations
                     b.HasKey("MeetingId");
 
                     b.ToTable("Meetings");
-                });
-
-            modelBuilder.Entity("KudumbashreeManagementSystem.Models.MeetingMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("ContributionAmount")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<bool>("IsPresent")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MeetingId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MeetingId");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("MeetingMembers");
                 });
 
             modelBuilder.Entity("KudumbashreeManagementSystem.Models.Member", b =>
@@ -129,10 +124,10 @@ namespace KudumbashreeManagementSystem.Migrations
                     b.ToTable("Members");
                 });
 
-            modelBuilder.Entity("KudumbashreeManagementSystem.Models.MeetingMember", b =>
+            modelBuilder.Entity("KudumbashreeManagementSystem.Models.Contribution", b =>
                 {
                     b.HasOne("KudumbashreeManagementSystem.Models.Meeting", "Meeting")
-                        .WithMany("MeetingMembers")
+                        .WithMany("Contributions")
                         .HasForeignKey("MeetingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -150,7 +145,7 @@ namespace KudumbashreeManagementSystem.Migrations
 
             modelBuilder.Entity("KudumbashreeManagementSystem.Models.Meeting", b =>
                 {
-                    b.Navigation("MeetingMembers");
+                    b.Navigation("Contributions");
                 });
 #pragma warning restore 612, 618
         }
